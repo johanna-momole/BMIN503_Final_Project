@@ -14,8 +14,6 @@ This project investigates the factors influencing HPV vaccination coverage among
 
 ## Usage
 
--   **Assignment3.qmd**: Contains the Quarto document for Assignment 3, which includes a draft of the Methods/Results section with code, analysis, and interpretations.
-
 -   **Data**: This folder (or link to data source) contains the dataset, "NCHS Data Brief No. 495," which includes HPV vaccination coverage data and relevant demographic and socioeconomic variables.
 
 -   **Methods**: Outlines the data preparation, exploratory data analysis (EDA), geographic analysis, and predictive modeling steps used to analyze the dataset.
