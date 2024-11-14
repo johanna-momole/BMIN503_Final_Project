@@ -1,19 +1,21 @@
-# BMIN503/EPID600 Final Project
+# HPV Vaccination Coverage Analysis
 
-This repository contains templates for the final written report and GitHub repository. Follow the instructions below to clone this repository, and then turn in your final project's code via a pull request to this repository.
+## Project Overview
 
-1. To start, **fork** this BMIN503_Final_Project repository.
-1. **Clone** the forked repository to your computer.
-1. Modify the files provided, add your own, and **commit** changes to complete your final project.
-1. **Push**/sync the changes up to your GitHub account.
-1. Create a **pull request** on this, the original BMIN503_Final_Project, repository to turn in your final project.
+This project investigates the factors influencing HPV vaccination coverage among children aged 9–17 in the United States, focusing on how social determinants of health (SDOH) such as insurance status, income level, urbanization, and disability status may impact vaccination rates. The goal is to use predictive modeling and statistical analysis to identify key predictors of lower vaccination coverage, providing insights for targeted public health interventions to increase HPV vaccine uptake.
 
+## Repository Structure
 
-Follow the instructions [here][forking] if you are unsure what the above steps mean.
+-   **Data**: This folder (or link to data source) contains the dataset, "NCHS Data Brief No. 495," which includes HPV vaccination coverage data and relevant demographic and socioeconomic variables.
 
-DUE DATE FOR FINAL VERSION: 12/13/24 11:59PM. This is a hard deadline. Turn in whatever you have by this date.
+-   **Methods**: Outlines the data preparation, exploratory data analysis (EDA), geographic analysis, and predictive modeling steps used to analyze the dataset.
 
+-   **Results**: Summarizes the findings, including significant predictors of vaccination coverage and insights into areas for improvement in vaccination rates.
 
-<!-- Links -->
-[forking]: https://guides.github.com/activities/forking/
+## Usage
 
+To run the analysis, clone this repository and open it as an RStudio Project. The primary analyses are within the `.qmd` file, which can be rendered to HTML.
+
+## Future Work
+
+The final version will include a complete analysis report with additional visualizations and model interpretations.
