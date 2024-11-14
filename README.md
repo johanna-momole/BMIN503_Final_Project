@@ -14,14 +14,6 @@ This project investigates the factors influencing HPV vaccination coverage among
 
 ## Usage
 
--   **Data**: This folder (or link to data source) contains the dataset, "NCHS Data Brief No. 495," which includes HPV vaccination coverage data and relevant demographic and socioeconomic variables.
-
--   **Methods**: Outlines the data preparation, exploratory data analysis (EDA), geographic analysis, and predictive modeling steps used to analyze the dataset.
-
--   **Results**: Summarizes the findings, including significant predictors of vaccination coverage and insights into areas for improvement in vaccination rates.
-
-## Usage
-
 To run the analysis, clone this repository and open it as an RStudio Project. The primary analyses are within the `.qmd` file, which can be rendered to HTML.
 
 ## Future Work
