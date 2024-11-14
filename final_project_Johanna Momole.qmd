@@ -1,0 +1,36 @@
+---
+title: "Predictive Insights into HPV Vaccination Coverage Among U.S. Youth"
+subtitle: "BMIN503/EPID600 Final Project"
+author: "Johanna Momole"
+format: html
+editor: visual
+number-sections: true
+embed-resources: true
+---
+
+------------------------------------------------------------------------
+
+Use this template to complete your project throughout the course. Your Final Project presentation will be based on the contents of this document. Replace the title/name above and text below with your own, but keep the headers. Feel free to change the theme and other display settings, although this is not required.
+
+## Overview {#sec-overview}
+
+This project examines HPV vaccination coverage among U.S. children aged 9–17 using key social determinants of health (SDOH) such as insurance status, income, and urbanization level. The goal is to develop predictive models to identify patterns in low coverage rates and provide insights that can inform targeted public health interventions.
+
+## Introduction {#sec-introduction}
+
+HPV vaccination is a crucial preventative measure to reduce the risk of HPV-related cancers. However, despite its benefits, vaccination coverage in the U.S. remains inconsistent, with lower uptake in certain demographic and socioeconomic groups. Research indicates that factors such as access to healthcare, income level, and geographic location can significantly impact vaccination rates. Analyzing these social determinants of health is essential to understand the disparities in vaccination coverage and address gaps in public health efforts. This project uses data from NCHS Data Brief No. 495, which reports on HPV vaccination rates in 2022, to assess and predict vaccination coverage among children aged 9–17 years across various sociodemographic groups.
+
+\
+The problem of HPV vaccination coverage is inherently interdisciplinary, intersecting fields such as public health, epidemiology, biomedical informatics, and data science. Insights from public health inform the selection of relevant social determinants, while data science and machine learning provide tools for predictive modeling. Guidance from Dr. Fuchiang Tsui has helped refine this project by ensuring the inclusion of relevant SDOH factors and advising on data management strategies. This interdisciplinary approach enables a more holistic understanding of how health disparities impact vaccination uptake and highlights potential areas for targeted interventions.
+
+## Methods {#sec-methods}
+
+**Data Preparation and Exploration:** Using the NCHS Data Brief No. 495 dataset, I’ll begin by cleaning and filtering the data to ensure relevant variables such as `insurance_status`, `income_level`, `urbanization`, and `age_group` are prepared for analysis. The dataset’s structure will then be explored through summary statistics and visualizations.
+
+## Results {#sec-results}
+
+Describe your results and include relevant tables, plots, and code/comments used to obtain them. You may refer to the @sec-methods as needed. End with a brief conclusion of your findings related to the question you set out to address. You can include references if you'd like, but this is not required.
+
+## Conclusion
+
+This the conclusion. The @sec-results can be invoked here.
