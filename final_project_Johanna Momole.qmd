@@ -1,36 +1,185 @@
 ---
-title: "Predictive Insights into HPV Vaccination Coverage Among U.S. Youth"
+title: "Modeling the Impact of Social Determinants on HPV Vaccination Rates Among U.S. Youth"
 subtitle: "BMIN503/EPID600 Final Project"
 author: "Johanna Momole"
-format: html
+format: 
+  html:
+    fig-width: 8
+    fig-height: 6
+    toc: true #make table of contents
+    toc-location: left
+    toc-depth: 2
 editor: visual
+theme: cerulean
 number-sections: true
 embed-resources: true
+execute: 
+  warning: false
+  message: false
 ---
 
 ------------------------------------------------------------------------
 
-Use this template to complete your project throughout the course. Your Final Project presentation will be based on the contents of this document. Replace the title/name above and text below with your own, but keep the headers. Feel free to change the theme and other display settings, although this is not required.
-
 ## Overview {#sec-overview}
 
-This project examines HPV vaccination coverage among U.S. children aged 9–17 using key social determinants of health (SDOH) such as insurance status, income, and urbanization level. The goal is to develop predictive models to identify patterns in low coverage rates and provide insights that can inform targeted public health interventions.
+HPV vaccination is a critical tool in preventing HPV-related cancers, yet disparities in vaccination coverage persist across the U.S. This project uses the CDC's dataset, *Vaccination Coverage Among Adolescents (13-17 Years)*, to identify key social determinants of health (SDOH) influencing HPV vaccination rates. The goal is to build predictive models that uncover patterns in low coverage rates and provide actionable insights for public health interventions.
+
+-   **Goals**: Understand factors influencing HPV vaccination coverage.
+
+-   **Data**: [*Vaccination Coverage Among Adolescents (13–17 Years)*](https://data.cdc.gov/Teen-Vaccinations/Vaccination-Coverage-among-Adolescents-13-17-Years/ee48-w5t6/about_data) dataset.
+
+-   **Faculty Consulted**:
+
+    -   Dr. Fuchiang Tsui: Guided the selection of relevant SDOH factors and advised on managing data complexity.
+
+    -   Dr. Jesse Hsu: Recommended statistical modeling approaches for better analysis of vaccination disparities.
 
 ## Introduction {#sec-introduction}
 
-HPV vaccination is a crucial preventative measure to reduce the risk of HPV-related cancers. However, despite its benefits, vaccination coverage in the U.S. remains inconsistent, with lower uptake in certain demographic and socioeconomic groups. Research indicates that factors such as access to healthcare, income level, and geographic location can significantly impact vaccination rates. Analyzing these social determinants of health is essential to understand the disparities in vaccination coverage and address gaps in public health efforts. This project uses data from NCHS Data Brief No. 495, which reports on HPV vaccination rates in 2022, to assess and predict vaccination coverage among children aged 9–17 years across various sociodemographic groups.
+Despite the effectiveness of HPV vaccines in preventing HPV-related cancers, vaccination rates remain uneven across the U.S. Factors such as income, urbanization, and access to healthcare contribute significantly to disparities in vaccination coverage. For example, rural and uninsured populations consistently show lower vaccination rates, underscoring the need to address social determinants of health (SDOH).
 
-\
-The problem of HPV vaccination coverage is inherently interdisciplinary, intersecting fields such as public health, epidemiology, biomedical informatics, and data science. Insights from public health inform the selection of relevant social determinants, while data science and machine learning provide tools for predictive modeling. Guidance from Dr. Fuchiang Tsui has helped refine this project by ensuring the inclusion of relevant SDOH factors and advising on data management strategies. This interdisciplinary approach enables a more holistic understanding of how health disparities impact vaccination uptake and highlights potential areas for targeted interventions.
+This project integrates public health knowledge with data science methodologies to investigate these disparities. By leveraging CDC vaccination data and applying machine learning models, this study aims to uncover actionable insights that can guide public health interventions. The interdisciplinary approach draws on public health, epidemiology, and data science expertise, reflecting the guidance provided by faculty consultants.
 
 ## Methods {#sec-methods}
 
-**Data Preparation and Exploration:** Using the NCHS Data Brief No. 495 dataset, I’ll begin by cleaning and filtering the data to ensure relevant variables such as `insurance_status`, `income_level`, `urbanization`, and `age_group` are prepared for analysis. The dataset’s structure will then be explored through summary statistics and visualizations.
+**Libraries:** In this project, several R libraries are utilized to perform data manipulation, visualization, and modeling. Below is an overview of the key libraries:
+
+#### 1. **Tidyverse**
+
+-   **Purpose:** The `tidyverse` is a collection of R packages designed for data science. It provides tools for data import, manipulation, visualization, and more.
+
+-   **Key Functions Used:**
+
+    -   `read_csv()`: Reads CSV files into R.
+
+    -   `filter()`, `select()`, `mutate()`, `summarize()`: Used for data cleaning and transformation.
+
+    -   `ggplot2` (part of the tidyverse): A powerful library for creating high-quality plots.
+
+#### 2. **Arrow**
+
+-   **Purpose:** The `arrow` package is used for handling large datasets efficiently by leveraging the Apache Arrow framework. It enables fast data serialization and processing.
+
+-   **Key Functions Used:**
+
+    -   `read_feather()`: Reads data stored in the feather format for quick access.
+
+-   **When It's Used:** For larger datasets, the feather format speeds up data reading and writing compared to traditional CSV or text formats.
+
+#### 3. **Gtsummary**
+
+-   **Purpose:** The `gtsummary` package creates professional summary tables for data exploration and presentation.
+
+-   **Key Functions Used:**
+
+    -   `tbl_summary()`: Produces a summary table of variables, including counts and descriptive statistics.
+
+    -   `add_p()`: Adds p-values to compare groups in a dataset.
+
+-   **Why It’s Important:** These tables provide a quick overview of the data and highlight differences between groups.
+
+#### 4. **GGplot2**
+
+-   **Purpose:** Part of the tidyverse, `ggplot2` is used for creating sophisticated, customizable visualizations.
+
+-   **Key Functions Used:**
+
+    -   `geom_bar()`, `geom_boxplot()`, `geom_violin()`: Create bar plots, boxplots, and violin plots.
+
+    -   `geom_point()`, `geom_smooth()`: Produce scatter plots and add smoothing lines.
+
+    -   `labs()`, `theme()`: Enhance plots with labels, themes, and other customizations.
+
+#### 5. **RandomForest**
+
+-   **Purpose:** The `randomForest` package implements the Random Forest algorithm for classification and regression tasks.
+
+-   **Key Functions Used:**
+
+    -   `randomForest()`: Builds a Random Forest model.
+
+    -   `importance()`: Calculates feature importance for interpretation.
+
+-   **Why It’s Used:** Random Forest is a robust, non-linear machine learning algorithm that handles complex relationships and interactions in the data.
+
+#### 6. **Caret**
+
+-   **Purpose:** The `caret` package simplifies model training and evaluation for a wide range of machine learning algorithms.
+
+-   **Key Functions Used:**
+
+    -   `train()`: Trains models with different algorithms and hyperparameter tuning.
+
+    -   `confusionMatrix()`: Evaluates model performance.
+
+-   **Why It’s Used:** It streamlines the process of building and validating models, making it easier to compare different approaches.
+
+#### 7. **DT**
+
+-   **Purpose:** The `DT` package creates interactive tables in HTML documents.
+
+-   **Key Functions Used:**
+
+    -   `datatable()`: Generates tables that allow sorting, filtering, and searching.
+
+-   **Why It’s Used:** Interactive tables make it easier for readers to explore data in the final report.
+
+```{r}
+#| eval: false
+
+# Install necessary packages
+install.packages(c("readr", "tidyverse", "randomForest", "gtsummary", "ggplot2", "usmap"))
+```
+
+```{r}
+# Load packages
+library(readr)
+library(tidyverse)
+library(randomForest)
+library(gtsummary)
+library(ggplot2)
+library(usmap)
+```
+
+**Data Description:** The dataset from the CDC, Vaccination Coverage Among Adolescents (13–17 Years), includes vaccination rates and sociodemographic characteristics by state and region. Key variables include:
+
+-   `vaccination_status`: Binary variable indicating whether the individual was vaccinated.
+
+-   `insurance_status`: Type of health insurance (e.g., private, Medicaid, uninsured).
+
+-   `income_level`: Household income categories.
+
+-   `urbanization`: Geographic classification (e.g., metropolitan, rural).
+
+The dataset comprises 27,600 rows and 10 columns.
+
+```{r}
+# Load dataset
+vaccination.data <- read_csv("C:/Users/Asus/Downloads/HPV Final Projects/Vaccination_Coverage_among_Adolescents.csv")
+
+# Preview the dataset
+glimpse(vaccination.data)
+
+# Check for missing values
+summary(vaccination.data)
+```
+
+**Data Preparation and Exploration:** The data will be cleaned to remove missing values and inconsistencies, and variables will be transformed where necessary. Summary statistics and visualizations (e.g., bar plots, histograms) will be used to explore patterns in vaccination rates.
+
+**Modeling:** A random forest algorithm will be applied to identify significant predictors of HPV vaccination coverage. This method was chosen for its robustness and ability to handle non-linear relationships and interactions between predictors. Feature importance analysis will highlight the most influential variables.
 
 ## Results {#sec-results}
 
-Describe your results and include relevant tables, plots, and code/comments used to obtain them. You may refer to the @sec-methods as needed. End with a brief conclusion of your findings related to the question you set out to address. You can include references if you'd like, but this is not required.
+**Exploratory Findings:**
+
+**Modeling Results:**
+
+**Visuals:**
+
+## Discussion {#sec-discussion}
 
 ## Conclusion
 
 This the conclusion. The @sec-results can be invoked here.
+
+## References
