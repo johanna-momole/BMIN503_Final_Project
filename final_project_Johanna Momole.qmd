@@ -1,5 +1,5 @@
 ---
-title: "Modeling the Impact of Social Determinants on HPV Vaccination Rates Among U.S. Youth"
+title: "Modeling HPV Vaccination Rates Across the U.S."
 subtitle: "BMIN503/EPID600 Final Project"
 author: "Johanna Momole"
 format: 
@@ -22,27 +22,29 @@ execute:
 
 ## Overview {#sec-overview}
 
-HPV vaccination is a critical tool in preventing HPV-related cancers, yet disparities in vaccination coverage persist across the U.S. This project uses the CDC's dataset, *Vaccination Coverage Among Adolescents (13-17 Years)*, to identify key social determinants of health (SDOH) influencing HPV vaccination rates. The goal is to build predictive models that uncover patterns in low coverage rates and provide actionable insights for public health interventions.
+HPV vaccination is a critical tool in preventing HPV-related cancers, yet disparities in vaccination coverage persist across the U.S. This project uses the CDC's dataset, *Vaccination Coverage Among Adolescents (13–17 Years)*, to analyze vaccination trends, identify regional disparities, and develop predictive models for future vaccination rates. The ultimate goal is to uncover patterns in coverage gaps and provide actionable insights for public health interventions.
 
--   **Goals**: Understand factors influencing HPV vaccination coverage.
+-   **Goals**: Understand factors influencing HPV vaccination coverage and predict future trends.
 
 -   **Data**: [*Vaccination Coverage Among Adolescents (13–17 Years)*](https://data.cdc.gov/Teen-Vaccinations/Vaccination-Coverage-among-Adolescents-13-17-Years/ee48-w5t6/about_data) dataset.
 
 -   **Faculty Consulted**:
 
-    -   Dr. Fuchiang Tsui: Guided the selection of relevant SDOH factors and advised on managing data complexity.
+    -   Dr. Fuchiang Tsui: Guided the selection of relevant factors and strategies to handle data complexity effectively.
 
-    -   Dr. Jesse Hsu: Recommended statistical modeling approaches for better analysis of vaccination disparities.
+    -   Dr. Jesse Hsu: Recommended statistical modeling approaches for analyzing disparities anad predicting trends.
 
 ## Introduction {#sec-introduction}
 
-Despite the effectiveness of HPV vaccines in preventing HPV-related cancers, vaccination rates remain uneven across the U.S. Factors such as income, urbanization, and access to healthcare contribute significantly to disparities in vaccination coverage. For example, rural and uninsured populations consistently show lower vaccination rates, underscoring the need to address social determinants of health (SDOH).
+HPV vaccination is a vital preventative measure to reduce the risk of HPV-related cancers, yet vaccination rates across the U.S. exhibit considerable variability. These differences are influenced by geographic location and temporal trends, emphasizing the need for data-driven insights to understand and address gaps in coverage. For instance, certain states or regions may consistently lag in vaccination rates, potentially due to resource limitations or public health barriers.
 
-This project integrates public health knowledge with data science methodologies to investigate these disparities. By leveraging CDC vaccination data and applying machine learning models, this study aims to uncover actionable insights that can guide public health interventions. The interdisciplinary approach draws on public health, epidemiology, and data science expertise, reflecting the guidance provided by faculty consultants.
+This project focuses on analyzing temporal and geographic trends in HPV vaccination rates among adolescents aged 13–17 years using CDC’s Vaccination Coverage Among Adolescents dataset. Through descriptive and predictive modeling, this study aims to uncover actionable insights, identify high-risk regions, and forecast future vaccination trends. By combining statistical analysis and machine learning, this work provides a foundation for targeted public health interventions and emphasizes the importance of data-driven strategies in improving vaccination coverage.
 
 ## Methods {#sec-methods}
 
-**Libraries:** In this project, several R libraries are utilized to perform data manipulation, visualization, and modeling. Below is an overview of the key libraries:
+### 1. Load the Libraries:
+
+In this project, several R libraries are utilized to perform data manipulation, visualization, and modeling. Below is an overview of the key libraries:
 
 #### 1. **Tidyverse**
 
@@ -128,43 +130,162 @@ This project integrates public health knowledge with data science methodologies 
 #| eval: false
 
 # Install necessary packages
-install.packages(c("readr", "tidyverse", "randomForest", "gtsummary", "ggplot2", "usmap"))
+install.packages(c("readr", "tidyverse", "caret", "randomForest", "ggplot2", "dplyr", "lubridate"))
 ```
 
 ```{r}
 # Load packages
 library(readr)
+library(stringr)
 library(tidyverse)
+library(caret)
 library(randomForest)
-library(gtsummary)
 library(ggplot2)
-library(usmap)
+library(dplyr)
+library(lubridate)
 ```
 
-**Data Description:** The dataset from the CDC, Vaccination Coverage Among Adolescents (13–17 Years), includes vaccination rates and sociodemographic characteristics by state and region. Key variables include:
+### 2. Load the Dataset:
 
--   `vaccination_status`: Binary variable indicating whether the individual was vaccinated.
+The dataset from the CDC, *Vaccination Coverage Among Adolescents (13–17 Years)*, provides HPV vaccination rates across different U.S. geographies and years. Updated on September 11, 2024, this dataset focuses on vaccination coverage trends over time and regional differences. Key variables include:
 
--   `insurance_status`: Type of health insurance (e.g., private, Medicaid, uninsured).
+-   **Geography**: Specifies the location, including U.S. states, territories, or national-level aggregates.
 
--   `income_level`: Household income categories.
+-   **Geography Type**: Indicates the scope (e.g., state-level or national-level data).
 
--   `urbanization`: Geographic classification (e.g., metropolitan, rural).
+-   **Survey Year**: The year the vaccination data was collected.
 
-The dataset comprises 27,600 rows and 10 columns.
+-   **Vaccination Measure**: Includes specific vaccination data points such as doses received (e.g., ≥1 dose of HPV vaccine) and total population coverage.
+
+-   **Estimate (%)**: The vaccination coverage percentage for a given geography and measure.
+
+-   **Confidence Interval (95% CI)**: Reflects the precision of the coverage estimate.
+
+-   **Sample Size**: Total sample size used to calculate the vaccination rates
 
 ```{r}
 # Load dataset
-vaccination.data <- read_csv("C:/Users/Asus/Downloads/HPV Final Projects/Vaccination_Coverage_among_Adolescents.csv")
+vaccination.data <- read_csv("Vaccination_Coverage_among_Adolescents__13-17_Years__20241121.csv")
 
-# Preview the dataset
-glimpse(vaccination.data)
+names(vaccination.data)
 
-# Check for missing values
-summary(vaccination.data)
+# Filter for HPV vaccination data
+unique(vaccination.data$vaccine.sample)
+
+hpv.data <- vaccination.data |> 
+  filter(str_detect(vaccine.sample, "HPV")) |> 
+  select(dose, geography.type, geography, survey.year, estimate, ci, sample.size)
+
+summary(hpv.data)
 ```
 
-**Data Preparation and Exploration:** The data will be cleaned to remove missing values and inconsistencies, and variables will be transformed where necessary. Summary statistics and visualizations (e.g., bar plots, histograms) will be used to explore patterns in vaccination rates.
+### 3. Data Cleaning:
+
+The data will be cleaned to remove missing values and inconsistencies, and variables will be transformed where necessary.
+
+```{r}
+# Remove duplicate rows
+hpv.data <- hpv.data |> 
+  distinct()
+
+# Drop rows with missing values
+hpv.data <- hpv.data |> 
+  drop_na()
+
+# Convert columns to appropriate data types
+hpv.data <- hpv.data |> 
+  mutate(
+    dose = as.character(dose),
+    geography.type = as.factor(geography.type),
+    geography = as.factor(geography),
+    survey.year = as.integer(survey.year),
+    estimate = as.numeric(estimate),
+    ci = as.character(ci),
+    sample.size = as.numeric(sample.size)
+  )
+
+# Standardize categorical variables
+hpv.data <- hpv.data |> 
+  mutate(
+    geography.type = str_to_title(as.character(geography.type)),
+    geography = str_to_title(as.character(geography))
+  )
+
+# Summary statistics to confirm no missing values and proper formatting
+hpv.data |> 
+  summarise(
+    total_rows = n(),
+    missing_estimate = sum(is.na(estimate)),
+    missing_sample_size = sum(is.na(sample.size))
+  )
+
+summary(hpv.data)
+```
+
+### 4. Descriptive and Trend Analysis:
+
+Summary statistics and visualizations (e.g., bar plots, histograms) will be used to explore patterns in vaccination rates.
+
+```{r}
+# Summary Statistics
+hpv.data |> 
+  summarise(
+    mean_estimate = mean(estimate, na.rm = TRUE),
+    median_estimate = median(estimate, na.rm = TRUE),
+    sd_estimate = sd(estimate, na.rm = TRUE),
+    min_estimate = min(estimate, na.rm = TRUE),
+    max_estimate = max(estimate, na.rm = TRUE),
+    mean_sample_size = mean(sample.size, na.rm = TRUE),
+    median_sample_size = median(sample.size, na.rm = TRUE),
+    sd_sample_size = sd(sample.size, na.rm = TRUE)
+  )
+
+# Count of unique categories
+hpv.data |> 
+  group_by(geography.type) |> 
+  summarise(count = n()) |> 
+  arrange(desc(count))
+
+hpv.data |> 
+  group_by(dose) |> 
+  summarise(count = n()) |> 
+  arrange(desc(count))
+
+# Histogram of vaccination rates
+ggplot(hpv.data, aes(x = estimate)) +
+  geom_histogram(binwidth = 5, fill = "steelblue", color = "black") +
+  labs(title = "Distribution of HPV Vaccination Rates", x = "Vaccination Rate (%)", y = "Frequency")
+
+# Bar plot for geography types
+ggplot(hpv.data, aes(x = geography.type)) +
+  geom_bar(fill = "darkgreen") +
+  labs(title = "Counts by Geography Type", x = "Geography Type", y = "Count") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# Bar plot for doses
+ggplot(hpv.data, aes(x = dose)) +
+  geom_bar(fill = "purple") +
+  labs(title = "Counts by Dose Type", x = "Dose", y = "Count") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+```{r}
+# Average vaccination rates per year
+trend.data <- hpv.data |> 
+  group_by(survey.year, geography.type) |> 
+  summarise(mean_estimate = mean(estimate, na.rm = TRUE))
+
+# Smoothed trend plot
+ggplot(trend.data, aes(x = survey.year, y = mean_estimate, color = geography.type)) +
+  geom_line(size = 1) +
+  geom_smooth(method = "loess", se = FALSE) +
+  labs(title = "HPV Vaccination Trends Over Time by Geography Type",
+       x = "Year",
+       y = "Mean Vaccination Rate (%)") +
+  theme_minimal()
+```
+
+### 4. Predictive Modeling
 
 **Modeling:** A random forest algorithm will be applied to identify significant predictors of HPV vaccination coverage. This method was chosen for its robustness and ability to handle non-linear relationships and interactions between predictors. Feature importance analysis will highlight the most influential variables.
 
