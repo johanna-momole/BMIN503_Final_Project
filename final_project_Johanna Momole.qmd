@@ -138,6 +138,7 @@ install.packages(c("readr", "tidyverse", "caret", "randomForest", "ggplot2", "dp
 library(readr)
 library(stringr)
 library(tidyverse)
+library(tidymodels)
 library(caret)
 library(randomForest)
 library(ggplot2)
@@ -287,7 +288,72 @@ ggplot(trend.data, aes(x = survey.year, y = mean_estimate, color = geography.typ
 
 ### 4. Predictive Modeling
 
-**Modeling:** A random forest algorithm will be applied to identify significant predictors of HPV vaccination coverage. This method was chosen for its robustness and ability to handle non-linear relationships and interactions between predictors. Feature importance analysis will highlight the most influential variables.
+A random forest algorithm will be applied to identify significant predictors of HPV vaccination coverage. This method was chosen for its robustness and ability to handle non-linear relationships and interactions between predictors. Feature importance analysis will highlight the most influential variables.
+
+```{r}
+# Split the data into training and testing sets
+set.seed(1234)
+hpv_split <- initial_split(hpv.data, strata = dose, prop = 0.8)
+hpv_train <- training(hpv_split)
+hpv_test <- testing(hpv_split)
+
+# Explore the dataset
+hpv_train |>
+  count(geography.type, dose) |>
+  ggplot(aes(x = geography.type, fill = dose)) +
+  geom_bar(position = "fill") +
+  theme_minimal() +
+  labs(title = "Dose Distribution by Geography Type", x = "Geography Type", y = "Proportion")
+
+# Create a recipe
+hpv_recipe <- recipe(dose ~ geography + geography.type + estimate + sample.size, data = hpv_train) |>
+  step_normalize(all_numeric_predictors()) |>
+  step_dummy(all_nominal_predictors())
+
+# Define a random forest model
+rf_spec <- rand_forest(trees = 500, min_n = 5) |> 
+  set_engine("randomForest") |> 
+  set_mode("classification")
+
+# Create a workflow
+rf_workflow <- workflow() |>
+  add_model(rf_spec) |>
+  add_recipe(hpv_recipe)
+
+# Perform 10-fold cross-validation
+set.seed(1234)
+hpv_folds <- vfold_cv(hpv_train, v = 10)
+
+rf_fit_cv <- rf_workflow |> 
+  fit_resamples(hpv_folds, control = control_resamples(save_pred = TRUE))
+
+# Evaluate cross-validation results
+collect_metrics(rf_fit_cv)
+```
+
+### 5. Model Evaluation
+
+```{r}
+# Transform 'dose' into a binary variable for "≥1 Dose, Females"
+rf_predictions <- collect_predictions(rf_fit_cv) |> 
+  mutate(dose_binary = ifelse(dose == "≥1 Dose, Females", "yes", "no")) |> 
+  mutate(dose_binary = factor(dose_binary, levels = c("no", "yes")))
+
+# Check the structure to confirm
+head(rf_predictions)
+
+# Visualize ROC curve for "≥1 Dose, Females"
+rf_predictions |>
+  roc_curve(dose_binary, `.pred_≥1 Dose, Females`) |>
+  ggplot(aes(x = 1 - specificity, y = sensitivity)) +
+  geom_path(color = "darkblue") +
+  geom_abline(linetype = "dashed", color = "gray") +
+  coord_equal() +
+  labs(title = "ROC Curve for '≥1 Dose, Females' (Cross-Validation)",
+       x = "1 - Specificity",
+       y = "Sensitivity") +
+  theme_minimal()
+```
 
 ## Results {#sec-results}
 
