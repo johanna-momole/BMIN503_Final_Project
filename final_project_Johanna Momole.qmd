@@ -50,15 +50,15 @@ In this project, several R libraries are utilized to perform data manipulation, 
 -   **nhanesA**: Fetching NHANES datasets.
 -   **caret**: Model training and evaluation.
 -   **xgboost**: Gradient boosting for predictive modeling.
--   **ROSE**: Balancing imbalanced datasets using oversampling techniques.
--   **pROC**: Generating ROC curves for model evaluation.
+-   **smotefamily**: Balancing imbalanced datasets using oversampling techniques.
+-   **Matrix**: Converting dataset into a sparse matrix format for XGBoost modeling.
 -   **MLmetrics**: Calculating performance metrics such as precision, recall, and F1-score.
 
 ```{r}
 #| eval: false
 
 # Install necessary packages
-install.packages(c("tidyverse", "nhanesA", "caret", "xgboost", "ROSE", "pROC", "MLmetrics"))
+install.packages(c("tidyverse", "nhanesA", "caret", "xgboost", "smotefamily", "Matrix", "MLmetrics"))
 ```
 
 ```{r}
@@ -67,8 +67,8 @@ library(tidyverse)
 library(nhanesA)
 library(caret)
 library(xgboost)
-library(ROSE)
-library(pROC)
+library(smotefamily)
+library(Matrix)
 library(MLmetrics)
 ```
 
@@ -215,7 +215,7 @@ table(merged_data$HPV_vaccine)
 barplot(
   table(merged_data$HPV_vaccine),
   main = "Distribution of HPV Vaccination Status",
-  xlab = "HPV Vaccination (1: Yes, 2: No)",
+  xlab = "HPV Vaccination",
   ylab = "Frequency",
   col = c("lightblue", "orange"),
   names.arg = c("Yes", "No")
@@ -233,9 +233,9 @@ table(merged_data$Insurance)
 barplot(
   table(merged_data$Insurance),
   main = "Health Insurance Coverage",
-  xlab = "Insurance (1: Covered, 2: Not Covered)",
+  xlab = "Insurance",
   ylab = "Frequency",
-  col = c("lightgreen", "pink"),
+  col = c("#8aebca", "#f1c2ed"),
   names.arg = c("Covered", "Not Covered")
 )
 ```
@@ -251,9 +251,9 @@ table(merged_data$Poverty)
 barplot(
   table(merged_data$Poverty),
   main = "Distribution of Poverty Levels",
-  xlab = "Poverty Levels",
+  xlab = "Family Savings",
   ylab = "Frequency",
-  col = c("lavender", "navy"),
+  col = c("#cebef8", "#fdf079"),
   names.arg = c(
     "Less than $3000",
     "More than $3000"
@@ -333,7 +333,6 @@ balanced_data$HPV_vaccine <- as.factor(balanced_data$HPV_vaccine)
 
 # Verify balance
 table(balanced_data$HPV_vaccine)
-
 ```
 
 **Data Splitting**
