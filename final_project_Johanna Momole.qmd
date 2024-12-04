@@ -206,6 +206,8 @@ summary(merged_data)
 
 **Distribution of HPV Vaccination**
 
+The number of individuals who have not received the HPV vaccination (orange bar) is significantly higher than those who have been vaccinated (light blue bar).
+
 ```{r}
 
 # Distribution of HPV vaccination
@@ -224,6 +226,10 @@ barplot(
 
 **Health Insurance Coverage**
 
+The majority of individuals are covered by health insurance (green bar), while a smaller portion lacks insurance coverage (pink bar).
+
+-   **Implication:** Despite a majority having insurance, the low vaccination rates (as seen in the first graph) suggest that insurance coverage alone may not fully address barriers to HPV vaccination. Other factors such as education might also play a role.
+
 ```{r}
 
 # Distribution of insurance status
@@ -240,7 +246,11 @@ barplot(
 )
 ```
 
-**Socioeconomic Status (Poverty Levels)**
+**Poverty Levels**
+
+A majority of individuals fall under the "Less than \$3000" family savings category (lavender bar), indicating a lower socioeconomic status for a significant portion of the population.
+
+-   **Implication:** Low socioeconomic status is a known barrier to accessing healthcare, including vaccinations. This finding aligns with the observed low vaccination rates.
 
 ```{r}
 
@@ -264,6 +274,10 @@ barplot(
 
 **Education Levels**
 
+A higher proportion of individuals fall under the "College or Above" category (yellow bar) compared to those "Below College" (orange bar).
+
+-   **Implication**: Education appears to have a positive association with vaccination rates based on previous studies. However, despite a higher proportion of educated individuals, there is still a vaccination gap.
+
 ```{r}
 
 # Distribution of education levels
@@ -275,7 +289,7 @@ barplot(
   main = "Distribution of Education Levels",
   xlab = "Education Levels",
   ylab = "Frequency",
-  col = c("coral", "yellow"),
+  col = c("coral", "#fdf079"),
   names.arg = c(
      "Bellow College",
      "College or Above"
@@ -283,9 +297,43 @@ barplot(
 )
 ```
 
+**Summary of Insights**
+
+-   **Health Insurance**: While most individuals have insurance, it is insufficient as a standalone factor to increase vaccination rates.
+
+-   **Socioeconomic Status**: The high proportion of individuals in lower-income categories highlights financial barriers as a significant deterrent.
+
+-   **Education**: While the majority are educated, those without higher education may still lack sufficient awareness of HPV vaccination benefits.
+
 ### **Predictive Analysis**
 
-Two models, **logistic regression** and **XGBoost**, were implemented to predict HPV vaccination outcomes. The SMOTE technique was applied to balance class distributions.
+**XGBoost and logistic regression** were implemented to predict HPV vaccination outcomes. The SMOTE technique was applied to balance class distributions.
+
+#### **XGBoost**
+
+-   **Purpose**: To achieve high predictive accuracy and effectively model complex relationships.
+
+-   **Strengths**:
+
+    -   Handles nonlinear interactions between features.
+
+    -   Robust to missing data and works well with imbalanced datasets.
+
+    -   Provides feature importance scores, helping identify the most influential predictors.
+
+    -   Highly efficient, making it suitable for large-scale predictive modeling tasks.
+
+#### **Logistic Regression**
+
+-   **Purpose**: To establish a baseline model and interpret the relationships between socioeconomic factors and HPV vaccination.
+
+-   **Strengths**:
+
+    -   Simple and interpretable, showing how each factor impacts vaccination likelihood.
+
+    -   Useful for understanding key determinants and their statistical significance.
+
+    -   Complements XGBoost by providing clarity on predictor effects.
 
 **Data Preparation**
 
