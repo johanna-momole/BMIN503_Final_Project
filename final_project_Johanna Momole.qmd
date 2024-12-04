@@ -632,3 +632,19 @@ Socioeconomic disparities significantly impact HPV vaccination rates. Targeted p
 -   Establish partnerships with pediatric healthcare providers to encourage vaccine recommendations during routine check-ups.
 
 ## References
+
+-   Han, J. J., Tarney, C. M., & Song, J. (2017). Variation in genital human papillomavirus infection prevalence and vaccination coverage among men and women in the USA. Future Oncology, 13(13), 1129–1132. <https://doi.org/10.2217/fon-2017-0147>
+
+-   Herb, S. (2024). Relationship Between Geographic Location, Race, and Socioeconomic Status on Adolescent Male HPV Vaccination in the United States.\[Doctoral dissertation, Walden University\]. Walden Dissertations and Doctoral Studies. <https://scholarworks.waldenu.edu/dissertations/16240/>
+
+-   Maness, S. B., & Thompson, E. L. (2019). Social Determinants of Human Papillomavirus Vaccine Uptake: An Assessment of Publicly Available Data. Public Health Reports, 134(3), 264–273. <https://doi.org/10.1177/0033354919838219>
+
+-   Quinlan, J. D. (2021). Human Papillomavirus: Screening, Testing, and Prevention. American Family Physician, 104(2), 152–159.
+
+-   Spencer, J. C., Brewer, N. T., Trogdon, J. G., Weinberger, M., Coyne-Beasley, T., & Wheeler, S. B. (2020). Cost-effectiveness of Interventions to Increase HPV Vaccine Uptake. Pediatrics, 146(6). <https://doi.org/10.1542/peds.2020-0395>
+
+-   Villarroel, M. A., Galinsky, A. M., Lu, P. J., & Pingali, C. (2024). Human Papillomavirus Vaccination Coverage in Children Ages 9-17 Years: United States, 2022. NCHS Data Brief, 495, 1–8.
+
+-   Xiong, S., Humble, S., Barnette, A., Brandt, H., Thompson, V., Klesges, L. M., & Silver, M. I. (2024). Associations of geographic-based socioeconomic factors and HPV vaccination among male and female children in five US states. BMC Public Health, 24(1), 1–8. <https://doi.org/10.1186/s12889-024-18206-5>
+
+-   Yang, H., Xie, Y., Guan, R., Zhao, Y., Lv, W., Liu, Y., Zhu, F., Liu, H., Guo, X., Tang, Z., Li, H., Zhong, Y., Zhang, B., & Yu, H. (2022). Factors affecting HPV infection in U.S. and Beijing females: A modeling study. Frontiers in Public Health, 10. <https://doi.org/10.3389/fpubh.2022.1052210>
