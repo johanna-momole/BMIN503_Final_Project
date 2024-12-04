@@ -22,11 +22,11 @@ execute:
 
 ## Overview {#sec-overview}
 
-HPV vaccination is a critical tool in preventing HPV-related cancers, yet disparities in vaccination coverage persist across the U.S. This project uses the CDC's dataset, *Vaccination Coverage Among Adolescents (13–17 Years)*, to analyze vaccination trends, identify regional disparities, and develop predictive models for future vaccination rates. The ultimate goal is to uncover patterns in coverage gaps and provide actionable insights for public health interventions.
+HPV vaccination is a critical public health measure to reduce HPV-related cancer risk. Despite its efficacy, vaccination rates remain inconsistent across demographic and socioeconomic groups in the U.S. This project explores factors influencing HPV vaccination rates using the NHANES dataset (2021–2023). Specifically, this study examines the effects of insurance coverage, socioeconomic status, and education levels. Predictive modeling and feature importance analyses are conducted to identify key barriers and provide actionable recommendations for public health interventions.
 
--   **Goals**: Understand factors influencing HPV vaccination coverage and predict future trends.
+-   **Goals**: Understand factors influencing HPV vaccination coverage and predict vaccination outcomes using logistic regression and XGBoost.
 
--   **Data**: [*Vaccination Coverage Among Adolescents (13–17 Years)*](https://data.cdc.gov/Teen-Vaccinations/Vaccination-Coverage-among-Adolescents-13-17-Years/ee48-w5t6/about_data) dataset.
+-   **Data**: *NHANES Dataset* (2021–2023) focusing on HPV vaccination, insurance, poverty, and education levels.
 
 -   **Faculty Consulted**:
 
@@ -36,337 +36,552 @@ HPV vaccination is a critical tool in preventing HPV-related cancers, yet dispar
 
 ## Introduction {#sec-introduction}
 
-HPV vaccination is a vital preventative measure to reduce the risk of HPV-related cancers, yet vaccination rates across the U.S. exhibit considerable variability. These differences are influenced by geographic location and temporal trends, emphasizing the need for data-driven insights to understand and address gaps in coverage. For instance, certain states or regions may consistently lag in vaccination rates, potentially due to resource limitations or public health barriers.
+HPV vaccination significantly reduces the incidence of HPV-related cancers, yet disparities in vaccination rates persist. These disparities are influenced by multiple factors, including socioeconomic status, education, and access to health insurance. Understanding these factors is crucial for designing targeted interventions to improve coverage and reduce disparities.
 
-This project focuses on analyzing temporal and geographic trends in HPV vaccination rates among adolescents aged 13–17 years using CDC’s Vaccination Coverage Among Adolescents dataset. Through descriptive and predictive modeling, this study aims to uncover actionable insights, identify high-risk regions, and forecast future vaccination trends. By combining statistical analysis and machine learning, this work provides a foundation for targeted public health interventions and emphasizes the importance of data-driven strategies in improving vaccination coverage.
+This project analyzes vaccination rates among adolescents aged 13–17 years using NHANES data (2021–2023). By combining descriptive statistics and predictive modeling, the study uncovers barriers to vaccination and highlights actionable solutions to improve public health outcomes.
 
 ## Methods {#sec-methods}
 
-### 1. Load the Libraries:
+### Load the Libraries:
 
 In this project, several R libraries are utilized to perform data manipulation, visualization, and modeling. Below is an overview of the key libraries:
 
-#### 1. **Tidyverse**
-
--   **Purpose:** The `tidyverse` is a collection of R packages designed for data science. It provides tools for data import, manipulation, visualization, and more.
-
--   **Key Functions Used:**
-
-    -   `read_csv()`: Reads CSV files into R.
-
-    -   `filter()`, `select()`, `mutate()`, `summarize()`: Used for data cleaning and transformation.
-
-    -   `ggplot2` (part of the tidyverse): A powerful library for creating high-quality plots.
-
-#### 2. **Arrow**
-
--   **Purpose:** The `arrow` package is used for handling large datasets efficiently by leveraging the Apache Arrow framework. It enables fast data serialization and processing.
-
--   **Key Functions Used:**
-
-    -   `read_feather()`: Reads data stored in the feather format for quick access.
-
--   **When It's Used:** For larger datasets, the feather format speeds up data reading and writing compared to traditional CSV or text formats.
-
-#### 3. **Gtsummary**
-
--   **Purpose:** The `gtsummary` package creates professional summary tables for data exploration and presentation.
-
--   **Key Functions Used:**
-
-    -   `tbl_summary()`: Produces a summary table of variables, including counts and descriptive statistics.
-
-    -   `add_p()`: Adds p-values to compare groups in a dataset.
-
--   **Why It’s Important:** These tables provide a quick overview of the data and highlight differences between groups.
-
-#### 4. **GGplot2**
-
--   **Purpose:** Part of the tidyverse, `ggplot2` is used for creating sophisticated, customizable visualizations.
-
--   **Key Functions Used:**
-
-    -   `geom_bar()`, `geom_boxplot()`, `geom_violin()`: Create bar plots, boxplots, and violin plots.
-
-    -   `geom_point()`, `geom_smooth()`: Produce scatter plots and add smoothing lines.
-
-    -   `labs()`, `theme()`: Enhance plots with labels, themes, and other customizations.
-
-#### 5. **RandomForest**
-
--   **Purpose:** The `randomForest` package implements the Random Forest algorithm for classification and regression tasks.
-
--   **Key Functions Used:**
-
-    -   `randomForest()`: Builds a Random Forest model.
-
-    -   `importance()`: Calculates feature importance for interpretation.
-
--   **Why It’s Used:** Random Forest is a robust, non-linear machine learning algorithm that handles complex relationships and interactions in the data.
-
-#### 6. **Caret**
-
--   **Purpose:** The `caret` package simplifies model training and evaluation for a wide range of machine learning algorithms.
-
--   **Key Functions Used:**
-
-    -   `train()`: Trains models with different algorithms and hyperparameter tuning.
-
-    -   `confusionMatrix()`: Evaluates model performance.
-
--   **Why It’s Used:** It streamlines the process of building and validating models, making it easier to compare different approaches.
-
-#### 7. **DT**
-
--   **Purpose:** The `DT` package creates interactive tables in HTML documents.
-
--   **Key Functions Used:**
-
-    -   `datatable()`: Generates tables that allow sorting, filtering, and searching.
-
--   **Why It’s Used:** Interactive tables make it easier for readers to explore data in the final report.
+-   **tidyverse**: Data wrangling and visualization.
+-   **nhanesA**: Fetching NHANES datasets.
+-   **caret**: Model training and evaluation.
+-   **xgboost**: Gradient boosting for predictive modeling.
+-   **ROSE**: Balancing imbalanced datasets using oversampling techniques.
+-   **pROC**: Generating ROC curves for model evaluation.
+-   **MLmetrics**: Calculating performance metrics such as precision, recall, and F1-score.
 
 ```{r}
 #| eval: false
 
 # Install necessary packages
-install.packages(c("readr", "tidyverse", "caret", "randomForest", "ggplot2", "dplyr", "lubridate"))
+install.packages(c("tidyverse", "nhanesA", "caret", "xgboost", "ROSE", "pROC", "MLmetrics"))
 ```
 
 ```{r}
 # Load packages
-library(readr)
-library(stringr)
 library(tidyverse)
-library(tidymodels)
+library(nhanesA)
 library(caret)
-library(randomForest)
-library(ggplot2)
-library(dplyr)
-library(lubridate)
+library(xgboost)
+library(ROSE)
+library(pROC)
+library(MLmetrics)
 ```
 
-### 2. Load the Dataset:
+### Load the Dataset:
 
-The dataset from the CDC, *Vaccination Coverage Among Adolescents (13–17 Years)*, provides HPV vaccination rates across different U.S. geographies and years. Updated on September 11, 2024, this dataset focuses on vaccination coverage trends over time and regional differences. Key variables include:
+The NHANES dataset (2021–2023) includes HPV vaccination information alongside socioeconomic and demographic variables. Key variables are:
 
--   **Geography**: Specifies the location, including U.S. states, territories, or national-level aggregates.
-
--   **Geography Type**: Indicates the scope (e.g., state-level or national-level data).
-
--   **Survey Year**: The year the vaccination data was collected.
-
--   **Vaccination Measure**: Includes specific vaccination data points such as doses received (e.g., ≥1 dose of HPV vaccine) and total population coverage.
-
--   **Estimate (%)**: The vaccination coverage percentage for a given geography and measure.
-
--   **Confidence Interval (95% CI)**: Reflects the precision of the coverage estimate.
-
--   **Sample Size**: Total sample size used to calculate the vaccination rates
+-   **HPV Vaccine**
+    -   **Variable Name**: IMQ060
+    -   **SAS Label**: Received HPV vaccine (Females)
+    -   **English Text**: Human Papillomavirus (HPV) vaccine is given to prevent HPV infection, cervical cancer, and other conditions caused by HPV in girls and women. It is given in 2 or 3 separate doses. {Have you/Has SP} ever received one or more doses of the HPV vaccine? (The brand names for the HPV vaccines are Cervarix, Gardasil, or Gardasil 9.)
+    -   **Target:** Females only, 9–49 years.
+    -   **Value Descriptions:**
+        -   1: Yes (Count: 1095)
+        -   2: No (Count: 1512)
+        -   7: Refused (Count: 2)
+        -   9: Don't know (Count: 244)
+        -   .: Missing (Count: 8712)
+-   **Health Insurance**
+    -   **Variable Name**: HIQ011
+    -   **SAS Label**: Covered by health insurance
+    -   **English Text**: {Are you/Is SP} covered by health insurance or some other kind of healthcare plan? \[Include health insurance obtained through employment or purchased directly as well as government programs like Medicare and Medicaid that provide medical care or help pay medical bills.\]
+    -   **Target:** Both males and females, 0–150 years.
+    -   **Value Descriptions:**
+        -   1: Yes (Count: 11,007)
+        -   2: No (Count: 864)
+        -   7: Refused (Count: 10)
+        -   9: Don't know (Count: 29)
+        -   .: Missing (Count: 23)
+-   **Poverty Level (Total Savings/Cash Assets for Family)**:
+    -   **Variable Name**: IND310
+    -   **SAS Label**: Total savings/cash assets for the family
+    -   **English Text**: Total savings or cash assets at this time for {you/NAMES OF OTHER FAMILY/your family}.
+    -   **Target:** Both males and females, 0–150 years.
+    -   **Value Descriptions:**
+        -   1: Less than \$3000 (Count: 3950)
+        -   2: \$3001–\$5000 (Count: 579)
+        -   3: \$5001–\$10000 (Count: 485)
+        -   4: \$10001–\$15000 (Count: 338)
+        -   5: \$15001–\$20000 (Count: 167)
+        -   77: Refused (Count: 61)
+        -   99: Don't know (Count: 70)
+        -   .: Missing (Count: 6283)
+-   **Education Level (DMDEDUC2)**:
+    -   **Variable Name**: IND310
+    -   **SAS Label**: Total savings/cash assets for the family
+    -   **English Text**: Total savings or cash assets at this time for {you/NAMES OF OTHER FAMILY/your family}.
+    -   **Target:** Both males and females, 0–150 years.
+    -   **Value Descriptions:**
+        -   1: Less than \$3000 (Count: 3950)
+        -   2: \$3001–\$5000 (Count: 579)
+        -   3: \$5001–\$10000 (Count: 485)
+        -   4: \$10001–\$15000 (Count: 338)
+        -   5: \$15001–\$20000 (Count: 167)
+        -   77: Refused (Count: 61)
+        -   99: Don't know (Count: 70)
+        -   .: Missing (Count: 6283)
 
 ```{r}
-# Load dataset
-vaccination.data <- read_csv("Vaccination_Coverage_among_Adolescents__13-17_Years__20241121.csv")
 
-names(vaccination.data)
+# Load NHANES datasets
+immunization_data <- nhanes("IMQ_L")
+insurance_data <- nhanes("HIQ_L")
+poverty_data <- nhanes("INQ_L")
+education_data <- nhanes("DEMO_L")
 
-# Filter for HPV vaccination data
-unique(vaccination.data$vaccine.sample)
-
-hpv.data <- vaccination.data |> 
-  filter(str_detect(vaccine.sample, "HPV")) |> 
-  select(dose, geography.type, geography, survey.year, estimate, ci, sample.size)
-
-summary(hpv.data)
+# Preview datasets
+summary(immunization_data)
+summary(insurance_data)
+summary(poverty_data)
+summary(education_data)
 ```
 
-### 3. Data Cleaning:
+### Data Cleaning:
 
-The data will be cleaned to remove missing values and inconsistencies, and variables will be transformed where necessary.
+Data cleaning steps included merging datasets, recoding variables, and filtering for complete cases. Specific recoding involved:
+
+-   HPV vaccine: Recoded as `1` (Yes) and `2` (No).
+
+-   Insurance: Recoded as `1` (Covered) and `2` (Not Covered).
+
+-   Poverty: Recoded into `1` (Low income: \<\$3,000) and `2` (Higher income: ≥\$3,000).
+
+-   Education: Recoded as `1` (Below college) and `2` (College or above).
 
 ```{r}
-# Remove duplicate rows
-hpv.data <- hpv.data |> 
-  distinct()
 
-# Drop rows with missing values
-hpv.data <- hpv.data |> 
-  drop_na()
-
-# Convert columns to appropriate data types
-hpv.data <- hpv.data |> 
+# Merge data
+merged_data <- list(immunization_data, insurance_data, poverty_data, education_data) |>
+  reduce(left_join, by = "SEQN") |>
+  select(SEQN, IMQ060, HIQ011, IND310, DMDEDUC2) |>
+  rename(
+    ID = SEQN,
+    HPV_vaccine = IMQ060,
+    Insurance = HIQ011,
+    Poverty = IND310,
+    Education = DMDEDUC2
+  ) |>
   mutate(
-    dose = as.character(dose),
-    geography.type = as.factor(geography.type),
-    geography = as.factor(geography),
-    survey.year = as.integer(survey.year),
-    estimate = as.numeric(estimate),
-    ci = as.character(ci),
-    sample.size = as.numeric(sample.size)
-  )
+    HPV_vaccine = case_when(
+      HPV_vaccine == "Yes" ~ 1,
+      HPV_vaccine == "No" ~ 2,
+      TRUE ~ NA_real_
+    ),
+    Insurance = case_when(
+      Insurance == "Yes" ~ 1,
+      Insurance == "No" ~ 2,
+      TRUE ~ NA_real_
+    ),
+    Poverty = case_when(
+      Poverty == "Less than $3000" ~ 1,
+      Poverty == "$3001- $5000" ~ 2,
+      Poverty == "$5001-$10000" ~ 2,
+      Poverty == "$10001-$15000" ~ 2,
+      Poverty == "$15001-$20000" ~ 2,
+      TRUE ~ NA_real_
+    ),
+    Education = case_when(
+      Education == "Less than 9th Grade" ~ 1,
+      Education == "9-11th grade (Includes 12th grade with no diploma)" ~ 1,
+      Education == "High school graduate/GED or equivalent" ~ 1,
+      Education == "Some college or AA degree" ~ 2,
+      Education == "College graduate or above" ~ 2,
+      TRUE ~ NA_real_
+    )
+  ) |> 
+  filter(!is.na(HPV_vaccine) & !is.na(Insurance) & !is.na(Poverty) & !is.na(Education))
 
-# Standardize categorical variables
-hpv.data <- hpv.data |> 
-  mutate(
-    geography.type = str_to_title(as.character(geography.type)),
-    geography = str_to_title(as.character(geography))
-  )
-
-# Summary statistics to confirm no missing values and proper formatting
-hpv.data |> 
-  summarise(
-    total_rows = n(),
-    missing_estimate = sum(is.na(estimate)),
-    missing_sample_size = sum(is.na(sample.size))
-  )
-
-summary(hpv.data)
-```
-
-### 4. Descriptive and Trend Analysis:
-
-Summary statistics and visualizations (e.g., bar plots, histograms) will be used to explore patterns in vaccination rates.
-
-```{r}
-# Summary Statistics
-hpv.data |> 
-  summarise(
-    mean_estimate = mean(estimate, na.rm = TRUE),
-    median_estimate = median(estimate, na.rm = TRUE),
-    sd_estimate = sd(estimate, na.rm = TRUE),
-    min_estimate = min(estimate, na.rm = TRUE),
-    max_estimate = max(estimate, na.rm = TRUE),
-    mean_sample_size = mean(sample.size, na.rm = TRUE),
-    median_sample_size = median(sample.size, na.rm = TRUE),
-    sd_sample_size = sd(sample.size, na.rm = TRUE)
-  )
-
-# Count of unique categories
-hpv.data |> 
-  group_by(geography.type) |> 
-  summarise(count = n()) |> 
-  arrange(desc(count))
-
-hpv.data |> 
-  group_by(dose) |> 
-  summarise(count = n()) |> 
-  arrange(desc(count))
-
-# Histogram of vaccination rates
-ggplot(hpv.data, aes(x = estimate)) +
-  geom_histogram(binwidth = 5, fill = "steelblue", color = "black") +
-  labs(title = "Distribution of HPV Vaccination Rates", x = "Vaccination Rate (%)", y = "Frequency")
-
-# Bar plot for geography types
-ggplot(hpv.data, aes(x = geography.type)) +
-  geom_bar(fill = "darkgreen") +
-  labs(title = "Counts by Geography Type", x = "Geography Type", y = "Count") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
-# Bar plot for doses
-ggplot(hpv.data, aes(x = dose)) +
-  geom_bar(fill = "purple") +
-  labs(title = "Counts by Dose Type", x = "Dose", y = "Count") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
-```
-
-```{r}
-# Average vaccination rates per year
-trend.data <- hpv.data |> 
-  group_by(survey.year, geography.type) |> 
-  summarise(mean_estimate = mean(estimate, na.rm = TRUE))
-
-# Smoothed trend plot
-ggplot(trend.data, aes(x = survey.year, y = mean_estimate, color = geography.type)) +
-  geom_line(size = 1) +
-  geom_smooth(method = "loess", se = FALSE) +
-  labs(title = "HPV Vaccination Trends Over Time by Geography Type",
-       x = "Year",
-       y = "Mean Vaccination Rate (%)") +
-  theme_minimal()
-```
-
-### 4. Predictive Modeling
-
-A random forest algorithm will be applied to identify significant predictors of HPV vaccination coverage. This method was chosen for its robustness and ability to handle non-linear relationships and interactions between predictors. Feature importance analysis will highlight the most influential variables.
-
-```{r}
-# Split the data into training and testing sets
-set.seed(1234)
-hpv_split <- initial_split(hpv.data, strata = dose, prop = 0.8)
-hpv_train <- training(hpv_split)
-hpv_test <- testing(hpv_split)
-
-# Explore the dataset
-hpv_train |>
-  count(geography.type, dose) |>
-  ggplot(aes(x = geography.type, fill = dose)) +
-  geom_bar(position = "fill") +
-  theme_minimal() +
-  labs(title = "Dose Distribution by Geography Type", x = "Geography Type", y = "Proportion")
-
-# Create a recipe
-hpv_recipe <- recipe(dose ~ geography + geography.type + estimate + sample.size, data = hpv_train) |>
-  step_normalize(all_numeric_predictors()) |>
-  step_dummy(all_nominal_predictors())
-
-# Define a random forest model
-rf_spec <- rand_forest(trees = 500, min_n = 5) |> 
-  set_engine("randomForest") |> 
-  set_mode("classification")
-
-# Create a workflow
-rf_workflow <- workflow() |>
-  add_model(rf_spec) |>
-  add_recipe(hpv_recipe)
-
-# Perform 10-fold cross-validation
-set.seed(1234)
-hpv_folds <- vfold_cv(hpv_train, v = 10)
-
-rf_fit_cv <- rf_workflow |> 
-  fit_resamples(hpv_folds, control = control_resamples(save_pred = TRUE))
-
-# Evaluate cross-validation results
-collect_metrics(rf_fit_cv)
-```
-
-### 5. Model Evaluation
-
-```{r}
-# Transform 'dose' into a binary variable for "≥1 Dose, Females"
-rf_predictions <- collect_predictions(rf_fit_cv) |> 
-  mutate(dose_binary = ifelse(dose == "≥1 Dose, Females", "yes", "no")) |> 
-  mutate(dose_binary = factor(dose_binary, levels = c("no", "yes")))
-
-# Check the structure to confirm
-head(rf_predictions)
-
-# Visualize ROC curve for "≥1 Dose, Females"
-rf_predictions |>
-  roc_curve(dose_binary, `.pred_≥1 Dose, Females`) |>
-  ggplot(aes(x = 1 - specificity, y = sensitivity)) +
-  geom_path(color = "darkblue") +
-  geom_abline(linetype = "dashed", color = "gray") +
-  coord_equal() +
-  labs(title = "ROC Curve for '≥1 Dose, Females' (Cross-Validation)",
-       x = "1 - Specificity",
-       y = "Sensitivity") +
-  theme_minimal()
+summary(merged_data)
 ```
 
 ## Results {#sec-results}
 
-**Exploratory Findings:**
+### **Descriptive Analysis**
 
-**Modeling Results:**
+**Distribution of HPV Vaccination**
 
-**Visuals:**
+```{r}
+
+# Distribution of HPV vaccination
+table(merged_data$HPV_vaccine)
+
+# Visualize the distribution
+barplot(
+  table(merged_data$HPV_vaccine),
+  main = "Distribution of HPV Vaccination Status",
+  xlab = "HPV Vaccination (1: Yes, 2: No)",
+  ylab = "Frequency",
+  col = c("lightblue", "orange"),
+  names.arg = c("Yes", "No")
+)
+```
+
+**Health Insurance Coverage**
+
+```{r}
+
+# Distribution of insurance status
+table(merged_data$Insurance)
+
+# Visualize health insurance coverage
+barplot(
+  table(merged_data$Insurance),
+  main = "Health Insurance Coverage",
+  xlab = "Insurance (1: Covered, 2: Not Covered)",
+  ylab = "Frequency",
+  col = c("lightgreen", "pink"),
+  names.arg = c("Covered", "Not Covered")
+)
+```
+
+**Socioeconomic Status (Poverty Levels)**
+
+```{r}
+
+# Distribution of poverty levels
+table(merged_data$Poverty)
+
+# Visualize poverty levels
+barplot(
+  table(merged_data$Poverty),
+  main = "Distribution of Poverty Levels",
+  xlab = "Poverty Levels",
+  ylab = "Frequency",
+  col = c("lavender", "navy"),
+  names.arg = c(
+    "Less than $3000",
+    "More than $3000"
+  )
+)
+
+```
+
+**Education Levels**
+
+```{r}
+
+# Distribution of education levels
+table(merged_data$Education)
+
+# Visualize education levels
+barplot(
+  table(merged_data$Education),
+  main = "Distribution of Education Levels",
+  xlab = "Education Levels",
+  ylab = "Frequency",
+  col = c("coral", "yellow"),
+  names.arg = c(
+     "Bellow College",
+     "College or Above"
+  )
+)
+```
+
+### **Predictive Analysis**
+
+Two models, **logistic regression** and **XGBoost**, were implemented to predict HPV vaccination outcomes. The SMOTE technique was applied to balance class distributions.
+
+**Data Preparation**
+
+```{r}
+
+# Showing data imbalance
+table(merged_data$HPV_vaccine)
+
+merged_data$HPV_vaccine <- as.factor(merged_data$HPV_vaccine)
+levels(merged_data$HPV_vaccine)  # Should show exactly two levels (e.g., "1" and "2")
+
+# Convert categorical predictors to numeric
+smote_data <- merged_data |>
+  mutate(
+    Insurance = as.numeric(as.factor(Insurance)),
+    Poverty = as.numeric(as.factor(Poverty)),
+    Education = as.numeric(as.factor(Education))
+  )
+
+smote_data <- smote_data |>
+  mutate(across(where(is.factor), ~ as.numeric(as.character(.))))
+
+str(smote_data)  # Ensure all predictors are numeric/factor
+
+# Apply SMOTE
+smote_output <- SMOTE(
+  X = smote_data[, -which(names(smote_data) == "HPV_vaccine")],  # Exclude target variable
+  target = smote_data$HPV_vaccine,  # Target variable
+  K = 5,  # Number of nearest neighbors
+  dup_size = 2  # Oversampling factor
+)
+
+any(is.na(smote_data))  # Ensure no missing values
+
+# Separate the majority and minority classes
+minority_class <- smote_data |> filter(HPV_vaccine == "1")
+majority_class <- smote_data |> filter(HPV_vaccine == "2")
+
+# Oversample the minority class
+oversampled_minority <- minority_class[sample(1:nrow(minority_class), nrow(majority_class), replace = TRUE), ]
+
+# Combine the oversampled minority class with the majority class
+balanced_data <- bind_rows(majority_class, oversampled_minority)
+balanced_data$HPV_vaccine <- as.factor(balanced_data$HPV_vaccine)
+
+# Verify balance
+table(balanced_data$HPV_vaccine)
+
+```
+
+**Data Splitting**
+
+```{r}
+
+# Ensure all necessary variables are factors
+balanced_data <- balanced_data |>
+  mutate(
+    HPV_vaccine = as.factor(HPV_vaccine),
+    Insurance = as.factor(Insurance),
+    Poverty = as.factor(Poverty),
+    Education = as.factor(Education)
+  )
+
+# Split the dataset into training and testing sets (70% train, 30% test)
+set.seed(123)
+train_index <- sample(1:nrow(merged_data), 0.7 * nrow(balanced_data))
+train_data <- balanced_data[train_index, ]
+test_data <- balanced_data[-train_index, ]
+```
+
+**XGBoost Model**
+
+```{r}
+
+# Prepare data for XGBoost
+train_matrix <- sparse.model.matrix(HPV_vaccine ~ Insurance + Poverty + Education - 1, data = train_data)
+test_matrix <- sparse.model.matrix(HPV_vaccine ~ Insurance + Poverty + Education - 1, data = test_data)
+
+train_labels <- as.numeric(train_data$HPV_vaccine) - 1  # XGBoost labels start at 0
+test_labels <- as.numeric(test_data$HPV_vaccine) - 1
+
+# Train the XGBoost model
+xgb_model <- xgboost(
+  data = train_matrix,
+  label = train_labels,
+  max_depth = 3,
+  eta = 0.1,
+  nrounds = 100,
+  objective = "binary:logistic",
+  verbose = 0
+)
+
+# Predict probabilities on test data
+xgb_probs <- predict(xgb_model, test_matrix)
+
+# Convert probabilities to class predictions
+xgb_class <- ifelse(xgb_probs > 0.5, 1, 2)
+
+# Convert predictions and actual labels to factors
+xgb_class <- factor(xgb_class, levels = c(1, 2))
+test_data$HPV_vaccine <- factor(test_data$HPV_vaccine, levels = c(1, 2))
+
+# Evaluate the model
+xgb_conf_matrix <- confusionMatrix(
+  data = xgb_class,
+  reference = test_data$HPV_vaccine,
+  positive = "1"
+)
+
+# Extract metrics
+xgb_accuracy <- xgb_conf_matrix$overall["Accuracy"]
+xgb_precision <- xgb_conf_matrix$byClass["Precision"]
+xgb_recall <- xgb_conf_matrix$byClass["Recall"]
+xgb_f1_score <- xgb_conf_matrix$byClass["F1"]
+
+# Print results
+cat("XGBoost Confusion Matrix:\n")
+print(xgb_conf_matrix$table)
+cat("\nAccuracy: ", round(xgb_accuracy, 4), "\n")
+cat("Precision: ", round(xgb_precision, 4), "\n")
+cat("Recall: ", round(xgb_recall, 4), "\n")
+cat("F1 Score: ", round(xgb_f1_score, 4), "\n")
+```
+
+**Logistic Regression Model**
+
+```{r}
+
+# Logistic Regression Model
+logistic_model <- glm(
+  HPV_vaccine ~ Insurance + Poverty + Education,
+  family = "binomial",
+  data = train_data
+)
+
+# Predict probabilities on test data
+logistic_probs <- predict(logistic_model, test_data, type = "response")
+
+# Convert probabilities to class predictions
+logistic_class <- ifelse(logistic_probs > 0.5, 1, 2)
+
+# Convert predictions and actual labels to factors
+logistic_class <- factor(logistic_class, levels = c(1, 2))
+test_data$HPV_vaccine <- factor(test_data$HPV_vaccine, levels = c(1, 2))
+
+# Evaluate the model
+logistic_conf_matrix <- confusionMatrix(
+  data = logistic_class,
+  reference = test_data$HPV_vaccine,
+  positive = "1"
+)
+
+# Extract metrics
+logistic_accuracy <- logistic_conf_matrix$overall["Accuracy"]
+logistic_precision <- logistic_conf_matrix$byClass["Precision"]
+logistic_recall <- logistic_conf_matrix$byClass["Recall"]
+logistic_f1_score <- logistic_conf_matrix$byClass["F1"]
+
+# Print results
+cat("Logistic Regression Confusion Matrix:\n")
+print(logistic_conf_matrix$table)
+cat("\nAccuracy: ", round(logistic_accuracy, 4), "\n")
+cat("Precision: ", round(logistic_precision, 4), "\n")
+cat("Recall: ", round(logistic_recall, 4), "\n")
+cat("F1 Score: ", round(logistic_f1_score, 4), "\n")
+```
+
+```{r}
+
+# Compile results into a data frame
+results <- data.frame(
+  Model = c("XGBoost", "Logistic Regression"),
+  Accuracy = c(round(xgb_accuracy, 4), round(logistic_accuracy, 4)),
+  Precision = c(round(xgb_precision, 4), round(logistic_precision, 4)),
+  Recall = c(round(xgb_recall, 4), round(logistic_recall, 4)),
+  F1_Score = c(round(xgb_f1_score, 4), round(logistic_f1_score, 4))
+)
+
+# Display the model comparison
+cat("\nModel Comparison:\n")
+results
+
+```
 
 ## Discussion {#sec-discussion}
 
-## Conclusion
+### **Feature Importance Analysis**
 
-This the conclusion. The @sec-results can be invoked here.
+```{r}
+
+# Extract feature importance
+xgb_importance <- xgb.importance(model = xgb_model)
+
+# Visualize feature importance
+xgb.plot.importance(xgb_importance, main = "Feature Importance (XGBoost)")
+
+```
+
+-   The feature importance is based on the gain, which measures the contribution of each feature to the model's decision-making.
+
+-   The most important feature is:
+
+    -   **Education2**: Plays the largest role in predicting the outcome.
+
+-   **Poverty2** and **Insurance1**: Both contribute, but their importance is significantly lower compared to education.
+
+```{r}
+
+# Extract coefficients from the logistic regression model
+logistic_coefficients <- summary(logistic_model)$coefficients
+
+# Organize into a dataframe
+logistic_importance <- data.frame(
+  Feature = rownames(logistic_coefficients),
+  Coefficient = logistic_coefficients[, "Estimate"]
+)
+
+# Sort by the absolute value of the coefficient for importance
+logistic_importance <- logistic_importance[order(abs(logistic_importance$Coefficient), decreasing = TRUE), ]
+
+# Visualize feature importance
+library(ggplot2)
+ggplot(logistic_importance, aes(x = reorder(Feature, Coefficient), y = Coefficient)) +
+  geom_bar(stat = "identity", fill = "skyblue") +
+  coord_flip() +
+  labs(title = "Feature Importance (Logistic Regression)", x = "Feature", y = "Coefficient")
+```
+
+-   The feature importance is based on the absolute values of the model coefficients.
+
+-   The most influential features are:
+
+    -   **Education2**: This suggests that higher education levels have a strong association with the outcome.
+
+    -   **Insurance2**: Indicates that insurance coverage is also significant but less influential than education.
+
+    -   **Poverty2**: Poverty levels contribute to the model but are less impactful compared to education and insurance.
+
+## Conclusion 
+
+Socioeconomic disparities significantly impact HPV vaccination rates. Targeted public health interventions focusing on insurance access, education, and poverty alleviation can improve outcomes.
+
+## Recommendations
+
+#### 1. **Improve Insurance Coverage**
+
+-   **Finding**: Having health insurance is one of the strongest predictors of HPV vaccination.
+
+-   **Recommendations**:
+
+    -   Expand access to free or low-cost vaccination programs for uninsured individuals, especially in underserved areas.
+
+    -   Collaborate with private insurers and government programs (e.g., Medicaid) to reduce out-of-pocket costs for HPV vaccines.
+
+    -   Launch public campaigns to raise awareness about insurance plans that cover HPV vaccination.
+
+#### 2. **Address Poverty-Related Barriers**
+
+-   **Finding**: Individuals from higher poverty levels are less likely to receive vaccinations.
+
+-   **Recommendations**:
+
+    -   Provide transportation vouchers or mobile vaccination units to reduce logistical barriers for low-income families.
+
+    -   Offer school-based vaccination programs in low-income areas to improve accessibility.
+
+    -   Create targeted financial incentives for low-income families to encourage vaccination, such as grocery vouchers or childcare subsidies.
+
+#### 3. **Promote Education About HPV Vaccination**
+
+-   **Finding**: Higher education levels are associated with increased vaccination rates.
+
+-   **Recommendations**:
+
+    -   Educate parents and caregivers about the benefits of HPV vaccination through community outreach programs, especially in areas with lower average educational attainment.
+
+    -   Partner with schools, community centers, and faith-based organizations to disseminate accurate vaccine information.
+
+    -   Counter vaccine misinformation through social media campaigns and trusted local influencers.
+
+#### 4. **Leverage Data-Driven Outreach**
+
+-   **Finding**: Education, insurance, and poverty are the most critical factors influencing vaccination rates.
+
+-   **Recommendations**:
+
+    -   Use predictive models like XGBoost to identify communities with the highest risk of low vaccination rates and focus interventions there.
+
+    -   Develop localized outreach efforts using geospatial mapping of vaccination rates, poverty levels, and insurance coverage.
+
+#### 5. **Policy Interventions**
+
+-   Advocate for mandatory HPV vaccinations as part of school-entry requirements (with appropriate opt-out clauses for medical/religious reasons).
+
+-   Lobby for state and federal funding for HPV vaccination campaigns, focusing on underinsured populations.
+
+-   Establish partnerships with pediatric healthcare providers to encourage vaccine recommendations during routine check-ups.
 
 ## References
