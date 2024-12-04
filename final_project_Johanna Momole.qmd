@@ -42,7 +42,7 @@ This project analyzes vaccination rates among adolescents aged 13–17 years usi
 
 ## Methods {#sec-methods}
 
-### Load the Libraries:
+### Load the Libraries
 
 In this project, several R libraries are utilized to perform data manipulation, visualization, and modeling. Below is an overview of the key libraries:
 
@@ -72,7 +72,7 @@ library(Matrix)
 library(MLmetrics)
 ```
 
-### Load the Dataset:
+### Load the Dataset
 
 The NHANES dataset (2021–2023) includes HPV vaccination information alongside socioeconomic and demographic variables. Key variables are:
 
@@ -142,7 +142,7 @@ summary(poverty_data)
 summary(education_data)
 ```
 
-### Data Cleaning:
+### Data Cleaning
 
 Data cleaning steps included merging datasets, recoding variables, and filtering for complete cases. Specific recoding involved:
 
@@ -202,7 +202,7 @@ summary(merged_data)
 
 ## Results {#sec-results}
 
-### **Descriptive Analysis**
+### Descriptive Analysis
 
 **Distribution of HPV Vaccination**
 
@@ -305,7 +305,7 @@ barplot(
 
 -   **Education**: While the majority are educated, those without higher education may still lack sufficient awareness of HPV vaccination benefits.
 
-### **Predictive Analysis**
+### Predictive Analysis
 
 **XGBoost and logistic regression** were implemented to predict HPV vaccination outcomes. The SMOTE technique was applied to balance class distributions.
 
@@ -577,7 +577,7 @@ Socioeconomic disparities significantly impact HPV vaccination rates. Targeted p
 
 ## Recommendations
 
-#### 1. **Improve Insurance Coverage**
+#### **Improve Insurance Coverage**
 
 -   **Finding**: Having health insurance is one of the strongest predictors of HPV vaccination.
 
@@ -589,7 +589,7 @@ Socioeconomic disparities significantly impact HPV vaccination rates. Targeted p
 
     -   Launch public campaigns to raise awareness about insurance plans that cover HPV vaccination.
 
-#### 2. **Address Poverty-Related Barriers**
+#### **Address Poverty-Related Barriers**
 
 -   **Finding**: Individuals from higher poverty levels are less likely to receive vaccinations.
 
@@ -601,7 +601,7 @@ Socioeconomic disparities significantly impact HPV vaccination rates. Targeted p
 
     -   Create targeted financial incentives for low-income families to encourage vaccination, such as grocery vouchers or childcare subsidies.
 
-#### 3. **Promote Education About HPV Vaccination**
+#### **Promote Education About HPV Vaccination**
 
 -   **Finding**: Higher education levels are associated with increased vaccination rates.
 
@@ -613,7 +613,7 @@ Socioeconomic disparities significantly impact HPV vaccination rates. Targeted p
 
     -   Counter vaccine misinformation through social media campaigns and trusted local influencers.
 
-#### 4. **Leverage Data-Driven Outreach**
+#### **Leverage Data-Driven Outreach**
 
 -   **Finding**: Education, insurance, and poverty are the most critical factors influencing vaccination rates.
 
@@ -623,7 +623,7 @@ Socioeconomic disparities significantly impact HPV vaccination rates. Targeted p
 
     -   Develop localized outreach efforts using geospatial mapping of vaccination rates, poverty levels, and insurance coverage.
 
-#### 5. **Policy Interventions**
+#### **Policy Interventions**
 
 -   Advocate for mandatory HPV vaccinations as part of school-entry requirements (with appropriate opt-out clauses for medical/religious reasons).
 
