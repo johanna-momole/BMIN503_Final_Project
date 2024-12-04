@@ -73,6 +73,8 @@ This project explores factors influencing HPV vaccination rates across the U.S.,
 -   **XGBoost**: Education was the most important predictor, followed by poverty and insurance.
 -   **Logistic Regression**: Education had the highest coefficient, highlighting its strong association with vaccination rates.
 
+------------------------------------------------------------------------
+
 ## Recommendations
 
 1.  **Expand Insurance Access**: Offer free or low-cost vaccination programs for uninsured individuals.
