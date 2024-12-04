@@ -1,4 +1,4 @@
-# Modeling HPV Vaccination Rates Across the U.S.
+# Predicting HPV Vaccination Socioeconomic Determinants Using NHANES Data (2021–2023)
 
 Course: BMIN 5030 Final Project
 
