@@ -1,5 +1,5 @@
 ---
-title: "Modeling HPV Vaccination Rates Across the U.S."
+title: "Predicting HPV Vaccination Socioeconomic Determinants Using NHANES Data (2021–2023)"
 subtitle: "BMIN503/EPID600 Final Project"
 author: "Johanna Momole"
 format: 
@@ -524,7 +524,7 @@ ggplot(logistic_importance, aes(x = reorder(Feature, Coefficient), y = Coefficie
 
     -   **Poverty2**: Poverty levels contribute to the model but are less impactful compared to education and insurance.
 
-## Conclusion 
+## Conclusion
 
 Socioeconomic disparities significantly impact HPV vaccination rates. Targeted public health interventions focusing on insurance access, education, and poverty alleviation can improve outcomes.
 
