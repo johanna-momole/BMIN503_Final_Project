@@ -533,9 +533,9 @@ xgb.plot.importance(xgb_importance, main = "Feature Importance (XGBoost)")
 
     -   **Education**: Plays the largest role in predicting the outcome, with a relative importance score nearing 0.6. This aligns with literature that suggests individuals with more education may have better access to healthcare information and preventive measures. Still, counter-intuitively, they might also have specific concerns or misconceptions about vaccine importance.
 
--   **Poverty**: The second most influential feature in the XGBoost model, with an importance score of approximately 0.3. Economic barriers significantly impact vaccination coverage, as families in porverty often face challenges like cost, accessibility, and healthcare literacy.
+-   **Insurance**: The second most influential feature in the XGBoost model, with an importance score of approximately 0.2. Insurance often determines access to preventive care, such as HPV vaccines, and uninsured populations are less likely to complete vaccination regimens due to financial constraints.
 
--   **Insurance**: Although ranked third, health insurance coverage still contributes notably to the model with a relative importance score of around 0.2. Insurance often determines access to preventive care, such as HPV vaccines, and uninsured populations are less likely tom complete vaccination regimens due to financial constraints.
+-   **Poverty**: Although ranked third, poverty still contributes notably to the model. Economic barriers significantly impact vaccination coverage, as families in porverty often face challenges like cost, accessibility, and healthcare literacy.
 
 ```{r}
 
