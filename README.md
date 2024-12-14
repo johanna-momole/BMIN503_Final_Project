@@ -12,9 +12,8 @@ This project explores factors influencing HPV vaccination rates across the U.S.,
 
 ## Project Goals
 
-1.  **Understand disparities** in HPV vaccination rates based on socioeconomic and demographic factors.
-2.  **Predict vaccination outcomes** using logistic regression and XGBoost models.
-3.  **Provide actionable recommendations** to address barriers and improve vaccination coverage.
+1.  **Predict vaccination outcomes** using logistic regression and XGBoost models.
+2.  **Provide actionable recommendations** to address barriers and improve vaccination coverage.
 
 ------------------------------------------------------------------------
 

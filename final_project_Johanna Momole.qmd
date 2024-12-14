@@ -24,7 +24,7 @@ execute:
 
 HPV vaccination is a critical public health measure to reduce HPV-related cancer risk. Despite its efficacy, vaccination rates remain inconsistent across demographic and socioeconomic groups in the U.S. This project explores factors influencing HPV vaccination rates using the NHANES dataset (2021–2023). Specifically, this study examines the effects of insurance coverage, socioeconomic status, and education levels. Predictive modeling and feature importance analyses are conducted to identify key barriers and provide actionable recommendations for public health interventions.
 
--   **Goals**: Understand factors influencing HPV vaccination coverage and predict vaccination outcomes using logistic regression and XGBoost.
+-   **Goals**: Understand factors influencing HPV vaccination coverage and predict vaccination outcomes using Logistic Regression and XGBoost.
 
 -   **Data**: *NHANES Dataset* (2021–2023) focusing on HPV vaccination, insurance, poverty, and education levels.
 
@@ -36,9 +36,11 @@ HPV vaccination is a critical public health measure to reduce HPV-related cancer
 
 ## Introduction {#sec-introduction}
 
-HPV vaccination significantly reduces the incidence of HPV-related cancers, yet disparities in vaccination rates persist. These disparities are influenced by multiple factors, including socioeconomic status, education, and access to health insurance. Understanding these factors is crucial for designing targeted interventions to improve coverage and reduce disparities.
+Human papillomavirus (HPV) is the most common sexually transmitted infection in the United States, with significant health implications, including cervical, anal, and oropharyngeal cancers. Despite the availability of a safe and effective vaccine since 2006 for females and 2009 for males, HPV vaccination rates remain suboptimal, particularly among adolescents. In 2022, only 38.6% of children aged 9–17 years had received at least one dose of the HPV vaccine, with disparities evident across racial, socioeconomic, and geographic lines​​.
 
-This project analyzes vaccination rates among adolescents aged 13–17 years using NHANES data (2021–2023). By combining descriptive statistics and predictive modeling, the study uncovers barriers to vaccination and highlights actionable solutions to improve public health outcomes.
+This project leverages data from the National Health and Nutrition Examination Survey (NHANES) 2021–2023 to analyze factors influencing HPV vaccination rates. The dataset includes information on key variables such as HPV vaccination status, health insurance coverage, family poverty level, and education level. For instance, vaccination rates among insured children were higher (41.5%) compared to uninsured children (20.7%), reflecting the role of healthcare access. Similarly, vaccination rates vary significantly with family income and parental education levels (Villarroel et al., 2024; Herb, 2024)
+
+The findings of this project have the potential to inform public health policies and initiatives aimed at addressing inequities, increasing vaccination rates, and ultimately reducing HPV-related disease burdens​​.
 
 ## Methods {#sec-methods}
 
@@ -206,7 +208,9 @@ summary(merged_data)
 
 **Distribution of HPV Vaccination**
 
-The number of individuals who have not received the HPV vaccination (orange bar) is significantly higher than those who have been vaccinated (light blue bar).
+-   The bar chart indicates a significantly lower number of individuals who received the HPV vaccine (light blue bar) compared to those who have not (orange bar).
+
+-   This disparity could imply the challenges in achieving widespread HPV vaccine uptake. As highlighted in Spencer et al. (2020), financial and logistical barriers, alongside vaccine hesitancy, contribute to low vaccination rates. Additionally, misinformation and lack of awareness about HPV's association with cancer may exacerbate these trends.
 
 ```{r}
 
@@ -226,9 +230,9 @@ barplot(
 
 **Health Insurance Coverage**
 
-The majority of individuals are covered by health insurance (green bar), while a smaller portion lacks insurance coverage (pink bar).
+-   The majority of individuals are covered by health insurance (green bar), with only a small proportion lacking coverage (pink bar).
 
--   **Implication:** Despite a majority having insurance, the low vaccination rates (as seen in the first graph) suggest that insurance coverage alone may not fully address barriers to HPV vaccination. Other factors such as education might also play a role.
+-   Despite high insurance coverage, the low vaccination rate seen earlier suggests that insurance alone may not eliminate barriers. Studies such as Maness and Thompson (2019) have shown that socioeconomic and educational factors, combined with access challenges, also play a crucial role in vaccine uptake. While insurance reduces direct costs, other structural barriers persist.
 
 ```{r}
 
@@ -248,9 +252,9 @@ barplot(
 
 **Poverty Levels**
 
-A majority of individuals fall under the "Less than \$3000" family savings category (lavender bar), indicating a lower socioeconomic status for a significant portion of the population.
+-   The majority of individuals fall under the "Less than \$3000" category (lavender bar), representing lower socioeconomic status, while fewer individuals have savings above \$3000 (yellow bar).
 
--   **Implication:** Low socioeconomic status is a known barrier to accessing healthcare, including vaccinations. This finding aligns with the observed low vaccination rates.
+-   Socioeconomic disadvantage is a significant barrier to healthcare access, including vaccination. Xiong et al. (2024) found a direct correlation between poverty and lower HPV vaccination rates, as financial constraints often deprioritize preventive healthcare.
 
 ```{r}
 
@@ -274,9 +278,9 @@ barplot(
 
 **Education Levels**
 
-A higher proportion of individuals fall under the "College or Above" category (yellow bar) compared to those "Below College" (orange bar).
+-   A higher proportion of individuals fall into the "College or Above" category (yellow bar) compared to "Below College" (orange bar).
 
--   **Implication**: Education appears to have a positive association with vaccination rates based on previous studies. However, despite a higher proportion of educated individuals, there is still a vaccination gap.
+-   Higher education levels are typically associated with better awareness and adoption of preventive healthcare measures. However, the gap in vaccination rates, even among educated individuals, might stem from cultural or personal beliefs, as suggested by Villarroel et al. (2024). This emphasizes the need for tailored education campaigns addressing vaccine hesitancy at all educational levels.
 
 ```{r}
 
@@ -296,14 +300,6 @@ barplot(
   )
 )
 ```
-
-**Summary of Insights**
-
--   **Health Insurance**: While most individuals have insurance, it is insufficient as a standalone factor to increase vaccination rates.
-
--   **Socioeconomic Status**: The high proportion of individuals in lower-income categories highlights financial barriers as a significant deterrent.
-
--   **Education**: While the majority are educated, those without higher education may still lack sufficient awareness of HPV vaccination benefits.
 
 ### Predictive Analysis
 
@@ -535,9 +531,11 @@ xgb.plot.importance(xgb_importance, main = "Feature Importance (XGBoost)")
 
 -   The most important feature is:
 
-    -   **Education2**: Plays the largest role in predicting the outcome.
+    -   **Education**: Plays the largest role in predicting the outcome, with a relative importance score nearing 0.6. This aligns with literature that suggests individuals with more education may have better access to healthcare information and preventive measures. Still, counter-intuitively, they might also have specific concerns or misconceptions about vaccine importance.
 
--   **Poverty2** and **Insurance1**: Both contribute, but their importance is significantly lower compared to education.
+-   **Poverty**: The second most influential feature in the XGBoost model, with an importance score of approximately 0.3. Economic barriers significantly impact vaccination coverage, as families in porverty often face challenges like cost, accessibility, and healthcare literacy.
+
+-   **Insurance**: Although ranked third, health insurance coverage still contributes notably to the model with a relative importance score of around 0.2. Insurance often determines access to preventive care, such as HPV vaccines, and uninsured populations are less likely tom complete vaccination regimens due to financial constraints.
 
 ```{r}
 
@@ -561,75 +559,81 @@ ggplot(logistic_importance, aes(x = reorder(Feature, Coefficient), y = Coefficie
   labs(title = "Feature Importance (Logistic Regression)", x = "Feature", y = "Coefficient")
 ```
 
--   The feature importance is based on the absolute values of the model coefficients.
+-   The feature importance is based on the absolute values of the model coefficients. The coefficients provide insight into the direction and magnitude of the relationship between predictor variables and the likelihood of HPV vaccination.
 
--   The most influential features are:
+-   **Intercept**:Represents the baseline log-odds of vaccination when all predictors are zero.
 
-    -   **Education2**: This suggests that higher education levels have a strong association with the outcome.
+-   **Insurance (+)**: The positive coefficient for insurance indicates that individuals with health insurance have significantly higher odds of being vaccinated. This finding aligns with the broader understanding that insurance coverage reduces financial and logistical barriers to vaccination.
 
-    -   **Insurance2**: Indicates that insurance coverage is also significant but less influential than education.
+-   **Poverty (−)**: The negative coefficient for poverty shows that in higher poverty levels are less likely to receive the HPV vaccine. This may indicate the intersection of economic hardship and limited healthcare access.
 
-    -   **Poverty2**: Poverty levels contribute to the model but are less impactful compared to education and insurance.
+-   **Education (−)**: Interestingly, higher education levels show a negative assation in the logistic regression model. This might suggest specific attitudes, concerns, or misinformation among more educated individuals, consistent with findings in vaccine hesitancy research.
 
 ## Conclusion
 
-Socioeconomic disparities significantly impact HPV vaccination rates. Targeted public health interventions focusing on insurance access, education, and poverty alleviation can improve outcomes.
+Both XGBoost and Logistic Regression models identify education, poverty, and insurance as key predictors influencing HPV vaccination rates. Education emerges as the most significant predictor in both models, indicating that higher educational attainment (e.g., some college or above) plays a complex role in vaccination coverage. However, its negative coefficient in Logistic Regression suggests potential vaccine hesitancy or access barriers among educated individuals.
 
 ## Recommendations
 
-#### **Improve Insurance Coverage**
+### **Improve Insurance Coverage**
 
--   **Finding**: Having health insurance is one of the strongest predictors of HPV vaccination.
+-   **Finding**: Having health insurance is one of the strongest predictors of HPV vaccination as individuals with coverage are more likely to access preventative healthcare services.
 
 -   **Recommendations**:
 
-    -   Expand access to free or low-cost vaccination programs for uninsured individuals, especially in underserved areas.
+    -   Advocate for the inclusion of HPV vaccines in all insurance policies, including short-term and high-deductible plans, through policy reform.
 
-    -   Collaborate with private insurers and government programs (e.g., Medicaid) to reduce out-of-pocket costs for HPV vaccines.
+    -   Partner with Medicaid and CHIP (Children's Health Insurance Program) to offer free HPV vaccines in underserved areas.
 
-    -   Launch public campaigns to raise awareness about insurance plans that cover HPV vaccination.
+    -   Develop campaigns to ensure families are aware of insurance benefits covering HPV vaccines, focusing on outreach in areas with low insurance penetration.
 
-#### **Address Poverty-Related Barriers**
+### **Address Poverty-Related Barriers**
 
 -   **Finding**: Individuals from higher poverty levels are less likely to receive vaccinations.
 
 -   **Recommendations**:
 
-    -   Provide transportation vouchers or mobile vaccination units to reduce logistical barriers for low-income families.
+    -   Provide vouchers for groceries, school supplies, or public transit to families completing the HPV vaccine series.
 
-    -   Offer school-based vaccination programs in low-income areas to improve accessibility.
+    -   Set up mobile vaccination clinics in economically disadvantaged areas, reducing logistical and financial barriers.
 
-    -   Create targeted financial incentives for low-income families to encourage vaccination, such as grocery vouchers or childcare subsidies.
+    -   Integrate HPV vaccination programs into school health clinics in low-income regions.
 
-#### **Promote Education About HPV Vaccination**
+### **Improve Educational Outreach**
 
--   **Finding**: Higher education levels are associated with increased vaccination rates.
-
--   **Recommendations**:
-
-    -   Educate parents and caregivers about the benefits of HPV vaccination through community outreach programs, especially in areas with lower average educational attainment.
-
-    -   Partner with schools, community centers, and faith-based organizations to disseminate accurate vaccine information.
-
-    -   Counter vaccine misinformation through social media campaigns and trusted local influencers.
-
-#### **Leverage Data-Driven Outreach**
-
--   **Finding**: Education, insurance, and poverty are the most critical factors influencing vaccination rates.
+-   **Finding**: Misinformation and lack of awareness about HPV vaccination contribute to hesitancy, even amon educated individuals.
 
 -   **Recommendations**:
 
-    -   Use predictive models like XGBoost to identify communities with the highest risk of low vaccination rates and focus interventions there.
+    -   Focus outreach in communities with lower vaccination rates, explaining the vaccine's safety and effectiveness.
 
-    -   Develop localized outreach efforts using geospatial mapping of vaccination rates, poverty levels, and insurance coverage.
+    -   Collaborate with trusted local organizations, such as schools, churches, and parent-teacher associations, to disseminate accurate information.
 
-#### **Policy Interventions**
+    -   Use social media platforms, infographics, and testimonials from healthcare providers to address vaccine myths and fears effectively.
 
--   Advocate for mandatory HPV vaccinations as part of school-entry requirements (with appropriate opt-out clauses for medical/religious reasons).
+### **Target Regional Disparities with Localized Strategies**
 
--   Lobby for state and federal funding for HPV vaccination campaigns, focusing on underinsured populations.
+-   **Finding**: Regional disparities reflect differences in healthcare access, availability of providers, and local socioeconomic conditions.
 
--   Establish partnerships with pediatric healthcare providers to encourage vaccine recommendations during routine check-ups.
+-   **Recommendations**:
+
+    -   Develop geospatial maps to identify vaccination gaps in rural and underserved regions.
+
+    -   Deploy mobile clinics to rural areas experiencing healthcare shortages.
+
+    -   Collaborate with local healthcare providers to create culturally sensitive campaigns addressing unique regional concerns.
+
+### **Advocate for Policy Interventions**
+
+-   **Finding**: Broader systemic changes are needed to ensure equitable vaccine access.
+
+-   **Recommendations**:
+
+    -   Lobby for school-entry HPV vaccine mandates, similar to other routine childhood vaccinations.
+
+    -   Secure federal and state funding for public health campaigns, with a focus on low-income and rural populations.
+
+    -   Create partnerships with healthcare providers to integrate HPV vaccine recommendations into routine pediatric check-ups and adolescent healthcare.
 
 ## References
 
